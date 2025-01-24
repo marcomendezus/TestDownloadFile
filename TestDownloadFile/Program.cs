@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TestDownloadFile.Models;
@@ -9,8 +10,6 @@ string currentDirectory = Directory.GetCurrentDirectory();
 string projectDirectory = Directory.GetParent(currentDirectory).Parent.Parent.FullName;
 string jsonFilePath = Path.Combine(projectDirectory, "Json", "example.json");
 string jsonContent = File.ReadAllText(jsonFilePath);
-string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-string filePathSave = Path.Combine(myDocumentsPath, "Test Download PDF\\{name}"); ;
 
 var options = new JsonSerializerOptions
 {
@@ -20,6 +19,14 @@ var options = new JsonSerializerOptions
 
 var showRfis = JsonSerializer.Deserialize<ModelV3>(jsonContent, options);
 
+string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+string filePathSave = Path.Combine(myDocumentsPath, "Test Download PDF and files", "{name}");
+string folderPath = Path.Combine(myDocumentsPath, "Test Download PDF and files");
+
+if (!Directory.Exists(folderPath))
+{
+    Directory.CreateDirectory(folderPath);
+}
 
 #endregion
 
@@ -70,7 +77,7 @@ DownloadFileAsyncWithModel(allAttachments, filePathSave);
 
 #region Metodos
 
-static async Task DownloadFileAsyncWithModel(List<Attachmentv1> urls, string folderPath)
+static async Task DownloadFileAsyncWithModel(List<Attachmentv1> urls, string filePathSave)
 {
     using (HttpClient client = new HttpClient())
     {
@@ -79,7 +86,7 @@ static async Task DownloadFileAsyncWithModel(List<Attachmentv1> urls, string fol
             try
             {
                 string pdfName = url.filename ?? url.name;
-                string filePath = folderPath.Replace("{name}", pdfName);
+                string filePath = filePathSave.Replace("{name}", pdfName);
                 using (WebClient webClient = new WebClient())
                 {
                     webClient.DownloadFile(url.url, filePath);
@@ -93,7 +100,7 @@ static async Task DownloadFileAsyncWithModel(List<Attachmentv1> urls, string fol
     }
 }
 
-static async Task DownloadFileAsyncWithHttpClient(List<Attachmentv1> urls, string folderPath)
+static async Task DownloadFileAsyncWithHttpClient(List<Attachmentv1> urls, string filePathSave)
 {
     using (HttpClient client = new HttpClient())
     {
@@ -104,7 +111,7 @@ static async Task DownloadFileAsyncWithHttpClient(List<Attachmentv1> urls, strin
                 // Usa el filename si está disponible, sino el nombre
                 string pdfName = url.filename ?? url.name;
                 // Genera la ruta completa para guardar el archivo
-                string filePath = Path.Combine(folderPath, pdfName);
+                string filePath = Path.Combine(filePathSave, pdfName);
 
                 // Valida que la URL sea válida antes de continuar
                 if (string.IsNullOrEmpty(url.url))
