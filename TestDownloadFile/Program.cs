@@ -69,39 +69,6 @@ var allAttachments = showRfis.attachments
 DownloadFileAsyncWithModel(allAttachments, filePathSave);
 
 #region Metodos
-static async Task DownloadFileAsyncWithModel2(List<Attachment> attachments, string folderPath)
-{
-    using (HttpClient client = new HttpClient())
-    {
-        foreach (var attachment in attachments)
-        {
-            try
-            {
-                string pdfName = attachment.Filename ?? attachment.Name;
-                string filePath = folderPath.Replace("{name}", pdfName);
-
-                using (WebClient webClient = new WebClient())
-                {
-                    await webClient.DownloadFileTaskAsync(new Uri(attachment.Url), filePath);
-                }
-
-                Console.WriteLine($"Archivo descargado y guardado en: {filePath}");
-            }
-            catch (HttpRequestException httpEx)
-            {
-                Console.WriteLine($"Error HTTP al descargar el archivo desde {attachment.Url}: {httpEx.Message}");
-            }
-            catch (TaskCanceledException timeoutEx)
-            {
-                Console.WriteLine($"Timeout al descargar el archivo desde {attachment.Url}: {timeoutEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error desconocido al descargar el archivo desde {attachment.Url}: {ex.Message}");
-            }
-        }
-    }
-}
 
 static async Task DownloadFileAsyncWithModel(List<Attachmentv1> urls, string folderPath)
 {
