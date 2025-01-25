@@ -136,33 +136,21 @@ static async Task DownloadFileAsyncWithHttpClient(List<Attachmentv1> urls, strin
         {
             try
             {
-                // Usa el filename si está disponible, sino el nombre
                 string pdfName = url.filename ?? url.name;
-                // Genera la ruta completa para guardar el archivo
                 string filePath = Path.Combine(filePathSave, pdfName);
 
-                // Valida que la URL sea válida antes de continuar
                 if (string.IsNullOrEmpty(url.url))
                 {
-                    Console.WriteLine($"La URL para el archivo {pdfName} está vacía. Saltando.");
                     continue;
                 }
 
-                // Descarga el contenido del archivo como un arreglo de bytes
-                Console.WriteLine($"Descargando archivo desde {url.url}...");
                 byte[] fileBytes = await client.GetByteArrayAsync(url.url);
 
-                // Escribe el archivo en la ruta especificada
                 await File.WriteAllBytesAsync(filePath, fileBytes);
-                Console.WriteLine($"Archivo descargado exitosamente: {filePath}");
             }
             catch (HttpRequestException httpEx)
             {
-                Console.WriteLine($"Error HTTP al descargar el archivo desde {url.url}: {httpEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error general al descargar el archivo {url.filename}: {ex.Message}");
+                Console.WriteLine($"Error HTTP al descargar el archivo desde {url}: {httpEx.Message}");
             }
         }
     }
