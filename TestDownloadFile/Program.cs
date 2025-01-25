@@ -17,7 +17,35 @@ var options = new JsonSerializerOptions
     PropertyNameCaseInsensitive = true
 };
 
-var showRfis = JsonSerializer.Deserialize<ModelV3>(jsonContent, options);
+var modelType = typeof(ModelV3);
+dynamic modelDeserialized = null;
+
+try
+{
+    modelDeserialized = JsonSerializer.Deserialize(jsonContent, modelType, options);
+    Console.WriteLine("Successfully deserialized as the specified model.");
+}
+catch (JsonException ex)
+{
+    Console.WriteLine($"Failed to deserialize as a single model. Trying as a list... Error: {ex.Message}");
+
+    try
+    {
+        var listType = typeof(List<>).MakeGenericType(modelType);
+        modelDeserialized = JsonSerializer.Deserialize(jsonContent, listType, options);
+        Console.WriteLine("Successfully deserialized as a list.");
+    }
+    catch (JsonException exList)
+    {
+        Console.WriteLine($"Failed to deserialize as a list. The JSON might contain an object property. Error: {exList.Message}");
+        return;
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+    return;
+}
 
 string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 string filePathSave = Path.Combine(myDocumentsPath, "Test Download PDF and files", "{name}");
